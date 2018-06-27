@@ -26,7 +26,7 @@ public class HelloWorld2 {
     ApiClient apiClient = new ApiClient(BaseUrl);
     try
     {
-        String randomState = "[random_string]";
+        String randomState = "anything";
         java.util.List<String> scopes = new java.util.ArrayList<String>();
         scopes.add(OAuth.Scope_SIGNATURE);
         // get DocuSign OAuth authorization url
@@ -74,19 +74,23 @@ public class HelloWorld2 {
        envDef.setEmailSubject("DocuSign Java SDK-Sample Signature Request");
           
           // assign template information including ID and role(s)
-          envDef.setTemplateId("[TEMPLATE_ID]");
+          envDef.setTemplateId("an attempt");
           
           // create a template role with a valid templateId
           //and roleName and assign signer info
           TemplateRole tRole = new TemplateRole();
-          tRole.setRoleName("[ROLE_NAME]");
-          tRole.setName("[SIGNER_NAME]");
+          tRole.setRoleName("Tester");
+          tRole.setName("Diego Pierce");
           tRole.setEmail("diego@goslinerpierce.com");
+          
+          tRole.setClientUserId("1001");
         
           // create a list of template roles and add our newly created role
           java.util.List<TemplateRole> templateRolesList =
           new java.util.ArrayList<TemplateRole>();
           templateRolesList.add(tRole);
+          
+          
         
           // assign template role(s) to the envelope 
           envDef.setTemplateRoles(templateRolesList);
@@ -101,6 +105,23 @@ public class HelloWorld2 {
           // call the createEnvelope() API
           EnvelopeSummary envelopeSummary =
           envelopesApi.createEnvelope(accountId, envDef);
+          System.out.println("Envelope has been sent to "+tRole.getEmail());
+          
+          EnvelopesApi envelopesapi = new EnvelopesApi();
+          
+          RecipientViewRequest view = new RecipientViewRequest();
+          view.setReturnUrl("https://docusign.com");
+          view.setAuthenticationMethod("email");
+          
+          view.setEmail("diego@goslinerpierce.com");
+          view.setUserName("Diego Pierce");
+          view.setRecipientId("1");
+          view.setClientUserId("1001");
+          
+          ViewUrl recipientView = 
+        envelopesApi.createRecipientView(accountId, "envelopeId", view);
+          System.out.println("Signing URL = " + recipientView.getUrl());
+          Desktop.getDesktop().browse(URI.create(recipientView.getUrl()));
         }
         catch (ApiException ex)
         {
