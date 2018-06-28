@@ -1,21 +1,23 @@
 
 import java.awt.Desktop;
 import java.net.URI;
-//import java.io.InputStreamReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-//import java.util.ArrayList;
-//import javax.ws.rs.core.UriBuilderException;
+import java.util.ArrayList;
+import javax.ws.rs.core.UriBuilderException;
+import java.util.Scanner;
 
-import com.docusign.esign.api.EnvelopesApi;
-import com.docusign.esign.client.ApiClient;
-import com.docusign.esign.client.ApiException;
-import com.docusign.esign.client.Configuration;
+import com.docusign.esign.api.*;
+import com.docusign.esign.client.*;
+import com.docusign.esign.model.*;
 import com.docusign.esign.client.auth.OAuth;
-import com.docusign.esign.model.EnvelopeDefinition;
-import com.docusign.esign.model.RecipientViewRequest;
-import com.docusign.esign.model.TemplateRole;
-import com.docusign.esign.model.ViewUrl;
+import com.docusign.esign.client.auth.OAuth.UserInfo;
+import java.awt.Desktop;
+
+import java.io.IOException;
+
 
 public class HelloWorld2 {
   public static void main(String[] args) {
@@ -23,7 +25,7 @@ public class HelloWorld2 {
     String RedirectURI = "https://www.google.com/";
     String ClientSecret = "65e1ef2c-73d1-49ac-9412-9d7dea882acc";
     String IntegratorKey = "69d7c233-5cb5-49b5-aebe-ab8e6bbc4a7d";
-    String BaseUrl = "https://demo.docusign.net/restapi";
+    String BaseUrl = "https://demo.docusign.net";
     String AuthServerUrl = "https://account-d.docusign.com";
     ApiClient apiClient = new ApiClient(BaseUrl);
     		
@@ -33,7 +35,7 @@ public class HelloWorld2 {
     
     try
     {
-        String randomState = "https://account-d.docusign.com";
+        String randomState = "";
         java.util.List<String> scopes = new java.util.ArrayList<String>();
         scopes.add(OAuth.Scope_SIGNATURE);
         // get DocuSign OAuth authorization url
@@ -42,15 +44,30 @@ public class HelloWorld2 {
         // open DocuSign OAuth login in the browser
 		Desktop.getDesktop().browse(oauthLoginUrl);
 		URL url= (oauthLoginUrl.toURL());
-		URLConnection con = url.openConnection();
-	//	InputStream is = con.getInputStream();
 		
-		System.out.println( "orignal url: " + con.getURL() );
-		con.connect();
-		System.out.println( "connected url: " + con.getURL() );
-		String line = con.getURL().getQuery();
-			
-		System.out.println("code may be: "+line);
+		//URLConnection con = (( url ).openConnection());
+		//System.out.println( "orignal url: " + con.getURL() );
+		//con.connect();
+		//System.out.println( "connected url: " + con.getURL() );
+		//InputStream is = con.getInputStream();
+		//System.out.println( "redirected url: " + con.getURL() );
+		//String line= con.getURL().getQuery();
+		//is.close();
+		
+		//HttpURLConnection con = (HttpURLConnection)(new URL( url ).openConnection());
+		//con.setInstanceFollowRedirects( false );
+		//con.connect();
+		//int responseCode = con.getResponseCode();
+		//System.out.println( responseCode );
+		//String location = con.getHeaderField( "Location" );
+		//System.out.println( location );
+		
+		//String line= url.toString();
+		//System.out.println(line);
+		System.out.println("enter code from browser");
+		Scanner sc= new Scanner(System.in);
+		String line= sc.nextLine();
+		
 		
         // IMPORTANT: after the login, DocuSign will send back a fresh
         // authorization code as a query param of the redirect URI.
@@ -73,25 +90,28 @@ public class HelloWorld2 {
         // below code required for production, no effect in demo (same
         // domain)
         apiClient.setBasePath
-        (userInfo.getAccounts().get(0).getBaseUri() + "\restapi");
+        (userInfo.getAccounts().get(0).getBaseUri());
         Configuration.setDefaultApiClient(apiClient);
 		String accountId =
 		userInfo.getAccounts().get(0).getAccountId();
+       // String accountId= "3c7db62a-f7c2-4ae9-83d0-c1232f35f330";
                  // create a new envelope to manage the signature request
           EnvelopeDefinition envDef = new EnvelopeDefinition();
        envDef.setEmailSubject("DocuSign Java SDK-Sample Signature Request");
-          
+        //  System.out.println(IntegratorKey);
+
           // assign template information including ID and role(s)
-          envDef.setTemplateId("an attempt");
+          envDef.setTemplateId("787180fc-009a-4be4-b7a7-c495b748b8b8");
           
           // create a template role with a valid templateId
           //and roleName and assign signer info
           TemplateRole tRole = new TemplateRole();
-          tRole.setRoleName("Tester");
+          tRole.setRoleName("signer");
           tRole.setName("Diego Pierce");
-          tRole.setEmail("diego@goslinerpierce.com");
+          tRole.setEmail("bobuleon@gmail.com");
           
-          tRole.setClientUserId("1001");
+          tRole.setClientUserId(IntegratorKey);
+        //  System.out.println(IntegratorKey);
         
           // create a list of template roles and add our newly created role
           java.util.List<TemplateRole> templateRolesList =
@@ -99,37 +119,40 @@ public class HelloWorld2 {
           templateRolesList.add(tRole);
           
           
-        
+      //  System.out.println(IntegratorKey);
           // assign template role(s) to the envelope 
           envDef.setTemplateRoles(templateRolesList);
           
           // send the envelope by setting |status| to "sent".
           // To save as a draft set to "created"
           envDef.setStatus("sent");
+          
         
           // instantiate a new EnvelopesApi object
           EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
-        
+       //   System.out.println(IntegratorKey);
+        //accountId= IntegratorKey;
           // call the createEnvelope() API
-      //    EnvelopeSummary envelopeSummary =
+          EnvelopeSummary envelopeSummary =
           envelopesApi.createEnvelope(accountId, envDef);
           System.out.println("Envelope has been sent to "+tRole.getEmail());
           
-     //     EnvelopesApi envelopesapi = new EnvelopesApi();
+       //   EnvelopesApi envelopesapi = new EnvelopesApi();
           
           RecipientViewRequest view = new RecipientViewRequest();
-          view.setReturnUrl("https:\\docusign.com");
+          view.setReturnUrl("https://demo.docusign.net");
           view.setAuthenticationMethod("email");
           
-          view.setEmail("diego@goslinerpierce.com");
+          view.setEmail("bobuleon@gmail.com");
           view.setUserName("Diego Pierce");
-          view.setRecipientId("65e1ef2c-73d1-49ac-9412-9d7dea882acc");
-          view.setClientUserId("69d7c233-5cb5-49b5-aebe-ab8e6bbc4a7d");
+          view.setRecipientId(ClientSecret);
+          view.setClientUserId(IntegratorKey);
           
           ViewUrl recipientView = 
-        envelopesApi.createRecipientView(accountId, "envelopeId", view);
+        envelopesApi.createRecipientView(accountId, envelopeSummary.getEnvelopeId(), view);
           System.out.println("Signing URL = " + recipientView.getUrl());
           Desktop.getDesktop().browse(URI.create(recipientView.getUrl()));
+         
         }
         catch (ApiException ex)
         {
